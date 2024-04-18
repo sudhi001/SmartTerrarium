@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "sstream": "cpp",
+        "system_error": "cpp"
+    }
+}
