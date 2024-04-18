@@ -78,7 +78,3 @@ If you encounter any bugs or have ideas for new features, please feel free to op
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
----
-
-Feel free to expand on this template with specific details, setup instructions, diagrams, or links to relevant resources. Customize it according to your project's needs and specifications.
