@@ -1,8 +1,5 @@
-Certainly! Here's a basic template for your `README.md` file to describe your IoT terrarium project:
 
----
-
-# IoT Terrarium Automation Project
+# Smart Terrarium Automation Project
 
 This project aims to automate an in-house terrarium using IoT technology. The goal is to maintain optimal conditions within the terrarium by automatically spraying or pouring water based on the atmospheric temperature and soil humidity.
 
