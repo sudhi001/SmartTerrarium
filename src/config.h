@@ -15,15 +15,7 @@
 
 // Device unique identifier and WiFi credentials
 #define DEVICE_UID "1X"         // Define the unique identifier for the device
-#define WIFI_SSID ""     // Define the WiFi network SSID
-#define WIFI_PASSWORD ""  // Define the WiFi network password
 
-// Constants for activation thresholds
-#define SPRAY_MODULE_ACTIVATION_TEMPERATURE 27   // Temperature threshold to activate spray module
-#define WATER_MODULE_ACTIVATION_MOISTURE 15      // Moisture threshold to activate water motor
 
-// Firebase project details
-#define API_KEY "-"  // Firebase API key
-#define DATABASE_URL ""  // Firebase database URL
 
 #endif

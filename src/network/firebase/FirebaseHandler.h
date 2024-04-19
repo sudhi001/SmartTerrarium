@@ -4,6 +4,13 @@
 #include <Arduino.h>  // Assuming Arduino environment
 #include <FirebaseESP32.h>  // Include Firebase library
 
+
+struct FirebaseCredentials
+{
+  char apiKey[48];
+  char databaseURL[180];
+};
+
 /**
  * @brief A class for handling interaction with a Firebase Realtime Database from an Arduino board.
  *
@@ -17,7 +24,7 @@ public:
    */
   String fuid; 
 
-  FirebaseHandler(const char* apiKey, const char* databaseUrl);
+  FirebaseHandler();
 
   /**
    * @brief Initializes the Firebase connection with the provided API key and database URL.
@@ -25,7 +32,7 @@ public:
    * This method attempts to sign up a new user and sets the `isAuthenticated` flag accordingly. It also configures the Firebase library and starts the connection.
    *
    */
-  void begin();
+  bool connect();
 
   /**
    * @brief Uploads JSON data to the specified node in the Firebase database.
@@ -40,8 +47,8 @@ public:
   bool uploadData(const char* node, const String jsonstring);
 
 private:
-const char* apiKey;
- const char* databaseUrl;
+    FirebaseCredentials firebaseCredentials;
+    bool isStorageEmpty();
   /**
    * @brief Firebase data object used for storing data to be uploaded.
    */

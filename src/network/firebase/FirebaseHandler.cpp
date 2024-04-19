@@ -1,6 +1,6 @@
 #include "FirebaseHandler.h"
 #include "addons/TokenHelper.h"
-
+#include <EEPROM.h>
 
 /**
  * @brief Default constructor for the FirebaseHandler class.
@@ -8,8 +8,9 @@
  * This constructor initializes the member variables of the class with default values.
  */
 
-FirebaseHandler::FirebaseHandler(const char* apiKey, const char* databaseUrl)
-    : apiKey(apiKey), databaseUrl(databaseUrl), isAuthenticated(false), elapsedMillis(0), update_interval(10000) {
+FirebaseHandler::FirebaseHandler()
+    : isAuthenticated(false), elapsedMillis(0), update_interval(10000)
+{
 }
 
 /**
@@ -20,31 +21,43 @@ FirebaseHandler::FirebaseHandler(const char* apiKey, const char* databaseUrl)
  * @param apiKey The Firebase API key.
  * @param databaseUrl The Firebase database URL.
  */
-void FirebaseHandler::begin()
+bool FirebaseHandler::connect()
 {
-    config.api_key = apiKey;
-    config.database_url = databaseUrl;
-    Firebase.reconnectWiFi(true);
-    if (Firebase.signUp(&config, &auth, "", ""))
+    EEPROM.get(1, firebaseCredentials);
+    if (!isStorageEmpty())
     {
-        isAuthenticated = true;
-        Serial.println("Firebase authentication successful");
-        fuid = auth.token.uid.c_str();
+        config.api_key = firebaseCredentials.apiKey;
+        config.database_url = firebaseCredentials.databaseURL;
+        Firebase.reconnectWiFi(true);
+        if (Firebase.signUp(&config, &auth, "", ""))
+        {
+            isAuthenticated = true;
+            Serial.println("Firebase authentication successful");
+            fuid = auth.token.uid.c_str();
+        }
+        else
+        {
+            Serial.println("Firebase authentication failed");
+        }
+        // Assign the callback function for the long running token generation task, see addons/TokenHelper.h
+        config.token_status_callback = tokenStatusCallback;
+        Firebase.begin(&config, &auth);
+        Serial.println("Firebase initialized!");
+        return true;
     }
     else
     {
-        Serial.println("Firebase authentication failed");
+        return false;
     }
-    // Assign the callback function for the long running token generation task, see addons/TokenHelper.h
-    config.token_status_callback = tokenStatusCallback;
-    Firebase.begin(&config, &auth);
-    Serial.println("Firebase initialized!");
 }
-
+bool FirebaseHandler::isStorageEmpty()
+{
+    return (strlen(firebaseCredentials.apiKey) == 0) && (strlen(firebaseCredentials.databaseURL) == 0);
+}
 /**
  * @brief Uploads JSON data to the specified node in the Firebase database.
  *
- * This method checks if the connection is ready, the user is authenticated, and the update interval has elapsed before sending the provided JSON data. 
+ * This method checks if the connection is ready, the user is authenticated, and the update interval has elapsed before sending the provided JSON data.
  *
  * @param node The path to the node in the Firebase database where the data should be uploaded.
  * @param jsonstring The JSON string to be uploaded.
@@ -66,7 +79,7 @@ bool FirebaseHandler::uploadData(const char *node, const String jsonstring)
         }
         else
         {
-            Serial.println("Firebase data upload failed: " );
+            Serial.println("Firebase data upload failed: ");
             Serial.print(fbdo.errorReason());
             return false;
         }
@@ -77,7 +90,3 @@ bool FirebaseHandler::uploadData(const char *node, const String jsonstring)
         return false;
     }
 }
-
-
-
-
