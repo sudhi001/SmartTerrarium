@@ -5,20 +5,21 @@
 #include "module/SensorReader.h"
 #include "module/DeviceConfig.h"
 #include "network/NetworkController.h"
+#include <WiFi.h>
 
 class Application
 {
 
 private:
-    FirebaseJson sensor_json;
     FirebaseHandler firebaseHandler;
     NetworkController networkController;
     ModuleController moduleController;
     SensorReader sensorReader;
     DeviceConfig deviceConfig;
-    bool isConnected;
+    bool isConnected = false;
     bool isFirebaseConnected;
     bool isDeviceCofigured;
+    bool isAllOkay = false;
 
 public:
     // Constructor to initialize members with appropriate parameters
@@ -32,17 +33,20 @@ public:
 
     void begin()
     {
+        networkController.initializeAppStorage();
         isConnected = networkController.connect();
         if (isConnected)
         {
-            isFirebaseConnected = firebaseHandler.connect();
+            AppStorage storage = networkController.getAppStorage();
+            sensorReader.begin();
+            moduleController.begin();
+            isFirebaseConnected = firebaseHandler.connect(storage,HOST_URL);
             if (isFirebaseConnected)
             {
-                isDeviceCofigured = deviceConfig.connect();
+                isDeviceCofigured = deviceConfig.connect(storage);
                 if (isDeviceCofigured)
                 {
-                    sensorReader.begin();
-                    moduleController.begin();
+                    isAllOkay = true;
                 }
             }
         }
@@ -50,6 +54,7 @@ public:
 
     void run()
     {
+        networkController.run();
         if (isConnected)
         {
             float soilMoisture = sensorReader.readMoisture();
@@ -74,11 +79,12 @@ public:
             sensor_json.add("willSprayOn", String(willSprayOn));
             sensor_json.add("willWaterModuleOn", String(willWaterModuleOn));
 
-            String jsonStr;
-            sensor_json.toString(jsonStr, true);
-            Serial.println(jsonStr);
-
-            firebaseHandler.uploadData("/sensors", jsonStr);
+            sensor_json.toString(networkController.sensorData, true);
+            Serial.println(networkController.sensorData);
+            if (isAllOkay)
+            {
+                firebaseHandler.uploadData("/sensors", networkController.sensorData);
+            }
 
             if (willSprayOn)
             {

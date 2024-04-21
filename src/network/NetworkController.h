@@ -3,20 +3,31 @@
 
 #include <Arduino.h>
 #include <SoftwareSerial.h>
+#include <WebServer.h>
+#include "model/AppStorage.h"
 
-struct NetworCridentials
-{
-  char ssid[32];
-  char password[32];
-};
 
 class NetworkController
 {
 public:
   bool connect();
+  bool run();
+   String sensorData;
+  AppStorage getAppStorage();
+    void clearEEPROM();
+    void initializeAppStorage();
 
 private:
-  NetworCridentials networkSCridentials;
+  AppStorage appStorage;
+  WebServer webServer;
+  void handleReport();
+  void startServer();
+  void handleSettings();
+  void handleNetworkConfig();
+  void handleNotFound();
+  void handleSettingsConfig();
+ void  printStorage();
+  bool isWebServerRunning = false;
   bool isStorageEmpty();
   const char *ssid = "SmartAgro";
   const char *password = "0123456789";

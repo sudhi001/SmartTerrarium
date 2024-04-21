@@ -2,31 +2,20 @@
 #ifndef DEVICECONFIG_H
 #define DEVICECONFIG_H
 #include <cstring> // Include for string functions like strlen
-
-struct DeviceConfigData
-{
-     char deviceId[32];
-    float sprayModuleActivateValue;
-    float waterModuleActivateValue;
-};
+#include "model/AppStorage.h"
 
 class DeviceConfig
 {
 public:
-    bool connect();
-    void updateDeviceId(char *deviceId);
+
+    bool connect(AppStorage appStorage);
     bool isDeviceIdEmpty() const;
     const char *getDeviceId() const;
     float getSprayModuleActivateValue() const;
     float getWaterModuleActivateValue() const;
 
-    // Methods to set configuration data
-    void setDeviceId(const char *deviceId);
-    void setSprayModuleActivateValue(float value);
-    void setWaterModuleActivateValue(float value);
-
 private:
-    DeviceConfigData deviceConfigData;
+    AppStorage appStorage;
 };
 
 #endif

@@ -1,6 +1,5 @@
 #include "FirebaseHandler.h"
 #include "addons/TokenHelper.h"
-#include <EEPROM.h>
 
 /**
  * @brief Default constructor for the FirebaseHandler class.
@@ -8,7 +7,7 @@
  * This constructor initializes the member variables of the class with default values.
  */
 
-FirebaseHandler::FirebaseHandler()
+FirebaseHandler::FirebaseHandler( )
     : isAuthenticated(false), elapsedMillis(0), update_interval(10000)
 {
 }
@@ -21,13 +20,13 @@ FirebaseHandler::FirebaseHandler()
  * @param apiKey The Firebase API key.
  * @param databaseUrl The Firebase database URL.
  */
-bool FirebaseHandler::connect()
+bool FirebaseHandler::connect(AppStorage appStorage,String host)
 {
-    EEPROM.get(1, firebaseCredentials);
+    this->appStorage = appStorage;
     if (!isStorageEmpty())
     {
-        config.api_key = firebaseCredentials.apiKey;
-        config.database_url = firebaseCredentials.databaseURL;
+        config.api_key = appStorage.apiKey;
+        config.database_url = host;
         Firebase.reconnectWiFi(true);
         if (Firebase.signUp(&config, &auth, "", ""))
         {
@@ -52,7 +51,7 @@ bool FirebaseHandler::connect()
 }
 bool FirebaseHandler::isStorageEmpty()
 {
-    return (strlen(firebaseCredentials.apiKey) == 0) && (strlen(firebaseCredentials.databaseURL) == 0);
+    return strlen(appStorage.apiKey) == 0;
 }
 /**
  * @brief Uploads JSON data to the specified node in the Firebase database.
