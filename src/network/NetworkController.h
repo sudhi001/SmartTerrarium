@@ -26,7 +26,9 @@ private:
   void handleNetworkConfig();
   void handleNotFound();
   void handleSettingsConfig();
+  void clearStorage();
  void  printStorage();
+ void handleReset();
   bool isWebServerRunning = false;
   bool isStorageEmpty();
   const char *ssid = "SmartAgro";

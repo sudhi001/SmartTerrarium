@@ -4,6 +4,7 @@
 #include <FirebaseESP32.h>
 void NetworkController::handleReport()
 {
+    Serial.println("Handle Report");
   webServer.send(200, "application/json", sensorData);
 }
 void NetworkController::printStorage()
@@ -17,6 +18,17 @@ void NetworkController::printStorage()
   Serial.println(String(appStorage.apiKey));
   Serial.print("deviceId: ");
   Serial.println(String(appStorage.deviceId));
+}
+void NetworkController::handleReset()
+{
+  FirebaseJson sensor_json;
+  clearStorage();
+  sensor_json.add("status", "SUCCESS");
+  String jsonStr;
+  sensor_json.toString(jsonStr, true);
+  Serial.println(jsonStr);
+  webServer.send(200, "application/json", jsonStr);
+  connect();
 }
 
 void NetworkController::handleSettings()
@@ -89,28 +101,38 @@ void NetworkController::handleNetworkConfig()
     Serial.println(jsonStr);
     // Print the ssid and password using Serial.println()
     printStorage();
-    connect();
     webServer.send(200, "application/json", jsonStr);
+     connect();
   }
+}
+void NetworkController::clearStorage()
+{
+
+  String empty = "";
+  empty.toCharArray(appStorage.ssid, sizeof(appStorage.ssid));
+  empty.toCharArray(appStorage.password, sizeof(appStorage.password));
+  empty.toCharArray(appStorage.apiKey, sizeof(appStorage.apiKey));
+  empty.toCharArray(appStorage.deviceId, sizeof(appStorage.deviceId));
+
+  // Ensure null termination
+  appStorage.ssid[sizeof(appStorage.ssid) - 1] = '\0';
+  appStorage.password[sizeof(appStorage.password) - 1] = '\0';
+  appStorage.apiKey[sizeof(appStorage.apiKey) - 1] = '\0';
+  appStorage.deviceId[sizeof(appStorage.deviceId) - 1] = '\0';
+  // Set default values for float fields
+  appStorage.sprayModuleActivateValue = 0.0;
+  appStorage.waterModuleActivateValue = 0.0;
+  clearEEPROM();
+
+  EEPROM.begin(sizeof(AppStorage));
+  EEPROM.get(0, appStorage);
+  EEPROM.end();
+  printStorage();
 }
 void NetworkController::initializeAppStorage()
 {
 
-  // String empty = "";
-  // empty.toCharArray(appStorage.ssid, sizeof(appStorage.ssid));
-  // empty.toCharArray(appStorage.password, sizeof(appStorage.password));
-  // empty.toCharArray(appStorage.apiKey, sizeof(appStorage.apiKey));
-  //   empty.toCharArray(appStorage.deviceId, sizeof(appStorage.deviceId));
-
-  // // Ensure null termination
-  // appStorage.ssid[sizeof(appStorage.ssid) - 1] = '\0';
-  // appStorage.password[sizeof(appStorage.password) - 1] = '\0';
-  // appStorage.apiKey[sizeof(appStorage.apiKey) - 1] = '\0';
-  // appStorage.deviceId[sizeof(appStorage.deviceId) - 1] = '\0';
-  // // Set default values for float fields
-  // appStorage.sprayModuleActivateValue = 0.0;
-  // appStorage.waterModuleActivateValue = 0.0;
-  // clearEEPROM();
+  //clearStorage();
 
   EEPROM.begin(sizeof(AppStorage));
   EEPROM.get(0, appStorage);
@@ -161,12 +183,15 @@ void NetworkController::startServer()
   Serial.println("Starting Server");
   webServer.on("/api/v1/report", [&]()
                { handleReport(); });
+   webServer.on("/api/v1/reset", [&]()
+               { handleReset(); });
   webServer.on("/api/v1/settings", [&]()
                { handleSettings(); });
   webServer.on("/api/v1/config/network", HTTP_POST, [&]()
                { handleNetworkConfig(); });
   webServer.on("/api/v1/config/settings", HTTP_POST, [&]()
                { handleSettingsConfig(); });
+               
   webServer.onNotFound([&]()
                        { handleNotFound(); });
   webServer.begin();
@@ -226,5 +251,6 @@ bool NetworkController::isStorageEmpty()
 {
   Serial.print("Length of SSID is ");
   Serial.print(strlen(appStorage.ssid));
+  Serial.println(".");
   return (strlen(appStorage.ssid) == 0) && (strlen(appStorage.password) == 0);
 }
