@@ -40,7 +40,7 @@ public:
             AppStorage storage = networkController.getAppStorage();
             sensorReader.begin();
             moduleController.begin();
-            isFirebaseConnected = firebaseHandler.connect(storage,HOST_URL);
+            isFirebaseConnected = firebaseHandler.connect(storage, HOST_URL, TOKEN);
             if (isFirebaseConnected)
             {
                 isDeviceCofigured = deviceConfig.connect(storage);
@@ -62,9 +62,9 @@ public:
             bool willSprayOn = atmosphericTemperature > deviceConfig.getSprayModuleActivateValue();
             bool willWaterModuleOn = soilMoisture < deviceConfig.getWaterModuleActivateValue();
             FirebaseJson sensor_json;
-            sensor_json.add("deviceUniqueId", deviceConfig.getDeviceId());
+            sensor_json.add("deviceUniqueId", DEVICE_UID);
             sensor_json.add("fcmUniqueId", firebaseHandler.fuid);
-            sensor_json.add("deviceWifiLocalIP", String(WiFi.localIP()));
+            sensor_json.add("deviceWifiLocalIP", WiFi.localIP().toString());
             sensor_json.add("soilMoisture", String(soilMoisture));
             sensor_json.add("soilTemperature", String(sensorReader.readTemperature()));
             sensor_json.add("soilEC", String(sensorReader.readEconduc()));
@@ -74,16 +74,23 @@ public:
             sensor_json.add("soilPotassium", String(sensorReader.readPotassium()));
             sensor_json.add("atmosphericTemperature", String(atmosphericTemperature));
             sensor_json.add("atmosphericHumidity", String(sensorReader.readAtmosphericHumidity()));
-            sensor_json.add("sprayModuleStatus", String(moduleController.isSprayModuleOn));
-            sensor_json.add("waterModuleStatus", String(moduleController.isWaterModuleOn));
-            sensor_json.add("willSprayOn", String(willSprayOn));
-            sensor_json.add("willWaterModuleOn", String(willWaterModuleOn));
-
+            sensor_json.add("sprayModuleStatus", moduleController.isSprayModuleOn);
+            sensor_json.add("waterModuleStatus", moduleController.isWaterModuleOn);
+            sensor_json.add("willSprayOn", willSprayOn);
+            sensor_json.add("willWaterModuleOn", willWaterModuleOn);
             sensor_json.toString(networkController.sensorData, true);
             Serial.println(networkController.sensorData);
             if (isAllOkay)
             {
-                firebaseHandler.uploadData("/sensors", networkController.sensorData);
+                const char *sensors = "/sensors/";
+                char *path = (char *)malloc(strlen(sensors) + strlen(DEVICE_UID) + 1);
+                if (path != NULL)
+                {
+                    strcpy(path, sensors);
+                    strcat(path, DEVICE_UID);
+                    firebaseHandler.uploadData(path, sensor_json);
+                    free(path);
+                }
             }
 
             if (willSprayOn)

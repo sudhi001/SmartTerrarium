@@ -4,18 +4,10 @@
 bool DeviceConfig::connect(AppStorage appStorage)
 {
     this-> appStorage= appStorage;
-    return isDeviceIdEmpty();
+    return true;
 }
 
-bool DeviceConfig::isDeviceIdEmpty() const
-{
-    return (strlen(appStorage.deviceId) == 0);
-}
 
-const char *DeviceConfig::getDeviceId() const
-{
-    return appStorage.deviceId;
-}
 
 float DeviceConfig::getSprayModuleActivateValue() const
 {

@@ -9,8 +9,6 @@ class DeviceConfig
 public:
 
     bool connect(AppStorage appStorage);
-    bool isDeviceIdEmpty() const;
-    const char *getDeviceId() const;
     float getSprayModuleActivateValue() const;
     float getWaterModuleActivateValue() const;
 

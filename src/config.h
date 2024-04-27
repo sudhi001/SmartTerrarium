@@ -16,6 +16,7 @@
 // Device unique identifier and WiFi credentials
 #define DEVICE_UID "1X"         // Define the unique identifier for the device
 #define HOST_URL ""  
+#define TOKEN ""         // Define the unique identifier for the device
 
 
 #endif

@@ -42,7 +42,7 @@ int SensorReader::readTemperature()
 
 int SensorReader::readAtmosphericTemperature()
 {
-    return dht.readTemperature();
+    return dht.readTemperature(true);
 }
 int SensorReader::readAtmosphericHumidity()
 {

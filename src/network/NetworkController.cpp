@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <EEPROM.h>
 #include <FirebaseESP32.h>
+#include <config.h>
 void NetworkController::handleReport()
 {
     Serial.println("Handle Report");
@@ -14,10 +15,6 @@ void NetworkController::printStorage()
   Serial.println(String(appStorage.ssid));
   Serial.print("Password: ");
   Serial.println(String(appStorage.password));
-  Serial.print("APIKey: ");
-  Serial.println(String(appStorage.apiKey));
-  Serial.print("deviceId: ");
-  Serial.println(String(appStorage.deviceId));
 }
 void NetworkController::handleReset()
 {
@@ -31,11 +28,11 @@ void NetworkController::handleReset()
   connect();
 }
 
-void NetworkController::handleSettings()
+void NetworkController::handleKnowDeviceId()
 {
   FirebaseJson sensor_json;
   sensor_json.add("status", "SUCCESS");
-  sensor_json.add("deviceUniqueId", "test");
+  sensor_json.add("deviceUniqueId", DEVICE_UID);
   String jsonStr;
   sensor_json.toString(jsonStr, true);
   Serial.println(jsonStr);
@@ -80,14 +77,10 @@ void NetworkController::handleNetworkConfig()
 
     ssidValue.toCharArray(appStorage.ssid, sizeof(appStorage.ssid));
     passwordValue.toCharArray(appStorage.password, sizeof(appStorage.password));
-    apiValue.toCharArray(appStorage.apiKey, sizeof(appStorage.apiKey));
-    deviceIdValue.toCharArray(appStorage.deviceId, sizeof(appStorage.deviceId));
 
     // Ensure null termination
     appStorage.ssid[sizeof(appStorage.ssid) - 1] = '\0';
     appStorage.password[sizeof(appStorage.password) - 1] = '\0';
-    appStorage.apiKey[sizeof(appStorage.apiKey) - 1] = '\0';
-    appStorage.deviceId[sizeof(appStorage.deviceId) - 1] = '\0';
     appStorage.sprayModuleActivateValue = 27;
     appStorage.waterModuleActivateValue = 15;
 
@@ -101,8 +94,9 @@ void NetworkController::handleNetworkConfig()
     Serial.println(jsonStr);
     // Print the ssid and password using Serial.println()
     printStorage();
+    connect();
     webServer.send(200, "application/json", jsonStr);
-     connect();
+    
   }
 }
 void NetworkController::clearStorage()
@@ -111,14 +105,10 @@ void NetworkController::clearStorage()
   String empty = "";
   empty.toCharArray(appStorage.ssid, sizeof(appStorage.ssid));
   empty.toCharArray(appStorage.password, sizeof(appStorage.password));
-  empty.toCharArray(appStorage.apiKey, sizeof(appStorage.apiKey));
-  empty.toCharArray(appStorage.deviceId, sizeof(appStorage.deviceId));
 
   // Ensure null termination
   appStorage.ssid[sizeof(appStorage.ssid) - 1] = '\0';
   appStorage.password[sizeof(appStorage.password) - 1] = '\0';
-  appStorage.apiKey[sizeof(appStorage.apiKey) - 1] = '\0';
-  appStorage.deviceId[sizeof(appStorage.deviceId) - 1] = '\0';
   // Set default values for float fields
   appStorage.sprayModuleActivateValue = 0.0;
   appStorage.waterModuleActivateValue = 0.0;
@@ -132,7 +122,7 @@ void NetworkController::clearStorage()
 void NetworkController::initializeAppStorage()
 {
 
-  //clearStorage();
+ //clearStorage();
 
   EEPROM.begin(sizeof(AppStorage));
   EEPROM.get(0, appStorage);
@@ -154,15 +144,7 @@ void NetworkController::clearEEPROM()
   Serial.println("EEPROM cleared successfully.");
   printStorage();
 }
-void NetworkController::handleSettingsConfig()
-{
-  FirebaseJson sensor_json;
-  sensor_json.add("status", "SUCCESS");
-  String jsonStr;
-  sensor_json.toString(jsonStr, true);
-  Serial.println(jsonStr);
-  webServer.send(200, "application/json", jsonStr);
-}
+
 AppStorage NetworkController::getAppStorage()
 {
   return appStorage;
@@ -185,12 +167,10 @@ void NetworkController::startServer()
                { handleReport(); });
    webServer.on("/api/v1/reset", [&]()
                { handleReset(); });
-  webServer.on("/api/v1/settings", [&]()
-               { handleSettings(); });
+  webServer.on("/api/v1/deviceId", [&]()
+               { handleKnowDeviceId(); });
   webServer.on("/api/v1/config/network", HTTP_POST, [&]()
                { handleNetworkConfig(); });
-  webServer.on("/api/v1/config/settings", HTTP_POST, [&]()
-               { handleSettingsConfig(); });
                
   webServer.onNotFound([&]()
                        { handleNotFound(); });

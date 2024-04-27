@@ -20,12 +20,10 @@ FirebaseHandler::FirebaseHandler( )
  * @param apiKey The Firebase API key.
  * @param databaseUrl The Firebase database URL.
  */
-bool FirebaseHandler::connect(AppStorage appStorage,String host)
+bool FirebaseHandler::connect(AppStorage appStorage,String host,String token)
 {
-    this->appStorage = appStorage;
-    if (!isStorageEmpty())
-    {
-        config.api_key = appStorage.apiKey;
+       this->appStorage = appStorage;
+        config.api_key = token;
         config.database_url = host;
         Firebase.reconnectWiFi(true);
         if (Firebase.signUp(&config, &auth, "", ""))
@@ -43,16 +41,8 @@ bool FirebaseHandler::connect(AppStorage appStorage,String host)
         Firebase.begin(&config, &auth);
         Serial.println("Firebase initialized!");
         return true;
-    }
-    else
-    {
-        return false;
-    }
 }
-bool FirebaseHandler::isStorageEmpty()
-{
-    return strlen(appStorage.apiKey) == 0;
-}
+
 /**
  * @brief Uploads JSON data to the specified node in the Firebase database.
  *
@@ -63,7 +53,7 @@ bool FirebaseHandler::isStorageEmpty()
  *
  * @return true if the data upload was successful, false otherwise.
  */
-bool FirebaseHandler::uploadData(const char *node, const String jsonstring)
+bool FirebaseHandler::uploadData(const char *node, FirebaseJson json)
 {
 
     Serial.println("Sending data to Firebase:");
@@ -71,7 +61,7 @@ bool FirebaseHandler::uploadData(const char *node, const String jsonstring)
     {
 
         elapsedMillis = millis();
-        if (Firebase.set(fbdo, node, jsonstring))
+        if (Firebase.setJSON(fbdo, node, json))
         {
             Serial.println("Firebase data upload successful");
             return true;
@@ -80,6 +70,7 @@ bool FirebaseHandler::uploadData(const char *node, const String jsonstring)
         {
             Serial.println("Firebase data upload failed: ");
             Serial.print(fbdo.errorReason());
+              Serial.println("Error---Completd");
             return false;
         }
     }

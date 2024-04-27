@@ -22,10 +22,9 @@ private:
   WebServer webServer;
   void handleReport();
   void startServer();
-  void handleSettings();
+  void handleKnowDeviceId();
   void handleNetworkConfig();
   void handleNotFound();
-  void handleSettingsConfig();
   void clearStorage();
  void  printStorage();
  void handleReset();

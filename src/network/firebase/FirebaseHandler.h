@@ -27,7 +27,7 @@ public:
    * This method attempts to sign up a new user and sets the `isAuthenticated` flag accordingly. It also configures the Firebase library and starts the connection.
    *
    */
-  bool connect(AppStorage appStorage,String host);
+  bool connect(AppStorage appStorage,String host,String  token);
 
   /**
    * @brief Uploads JSON data to the specified node in the Firebase database.
@@ -35,15 +35,13 @@ public:
    * This method checks if the connection is ready, the user is authenticated, and the update interval has elapsed before sending the provided JSON data. 
    *
    * @param node The path to the node in the Firebase database where the data should be uploaded.
-   * @param jsonstring The JSON string to be uploaded.
    *
    * @return true if the data upload was successful, false otherwise.
    */
-  bool uploadData(const char* node, const String jsonstring);
+  bool uploadData(const char* node, FirebaseJson json);
 
 private:
     AppStorage appStorage;
-    bool isStorageEmpty();
   /**
    * @brief Firebase data object used for storing data to be uploaded.
    */

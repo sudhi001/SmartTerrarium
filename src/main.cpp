@@ -12,4 +12,5 @@ void setup()
 void loop()
 {
   app.run();
+  delay(3000);
 }
