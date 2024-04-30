@@ -1,46 +1,90 @@
 #include "FirebaseHandler.h"
 #include "addons/TokenHelper.h"
 
+#include "config.h"
+
 /**
  * @brief Default constructor for the FirebaseHandler class.
  *
  * This constructor initializes the member variables of the class with default values.
  */
 
-FirebaseHandler::FirebaseHandler( )
+FirebaseHandler::FirebaseHandler()
     : isAuthenticated(false), elapsedMillis(0), update_interval(10000)
 {
 }
 
-/**
- * @brief Initializes the Firebase connection with the provided API key and database URL.
- *
- * This method attempts to sign up a new user and sets the `isAuthenticated` flag accordingly. It also configures the Firebase library and starts the connection.
- *
- * @param apiKey The Firebase API key.
- * @param databaseUrl The Firebase database URL.
- */
-bool FirebaseHandler::connect(AppStorage appStorage,String host,String token)
+void FirebaseHandler::createSensorObjet(BLEServerController *bleCtr, SensorReader *sensorReader, ModuleController *moduleController)
 {
-       this->appStorage = appStorage;
-        config.api_key = token;
-        config.database_url = host;
-        Firebase.reconnectWiFi(true);
-        if (Firebase.signUp(&config, &auth, "", ""))
-        {
-            isAuthenticated = true;
-            Serial.println("Firebase authentication successful");
-            fuid = auth.token.uid.c_str();
-        }
-        else
-        {
-            Serial.println("Firebase authentication failed");
-        }
-        // Assign the callback function for the long running token generation task, see addons/TokenHelper.h
-        config.token_status_callback = tokenStatusCallback;
-        Firebase.begin(&config, &auth);
-        Serial.println("Firebase initialized!");
-        return true;
+
+    AppStorage *storage = bleCtr->getAppStorage();
+    float soilMoisture = sensorReader->readMoisture();
+    float atmosphericTemperature = sensorReader->readAtmosphericTemperature();
+    bool willSprayOn = atmosphericTemperature > storage->sprayModuleActivateValue;
+    bool willWaterModuleOn = soilMoisture < storage->waterModuleActivateValue;
+    sensor_json.clear();
+    sensor_json.add("action", "DATA");
+    sensor_json.add("deviceUniqueId", DEVICE_UID);
+    sensor_json.add("fcmUniqueId", fuid);
+    sensor_json.add("deviceWifiLocalIP", WiFi.localIP().toString());
+    sensor_json.add("soilMoisture", soilMoisture);
+    sensor_json.add("soilTemperature", sensorReader->readTemperature());
+    sensor_json.add("soilEC", String(sensorReader->readEconduc()));
+    sensor_json.add("soilPH", sensorReader->readPh());
+    sensor_json.add("soilNitrogen", String(sensorReader->readNitrogen()));
+    sensor_json.add("soilPhosphorous", String(sensorReader->readPhosphorous()));
+    sensor_json.add("soilPotassium", String(sensorReader->readPotassium()));
+    sensor_json.add("atmosphericTemperature", atmosphericTemperature);
+    sensor_json.add("atmosphericHumidity", sensorReader->readAtmosphericHumidity());
+    sensor_json.add("sprayModuleStatus", moduleController->isSprayModuleOn);
+    sensor_json.add("waterModuleStatus", moduleController->isWaterModuleOn);
+    sensor_json.add("willSprayOn", willSprayOn);
+    sensor_json.add("willWaterModuleOn", willWaterModuleOn);
+     sensor_json.add("isWIFIConnectd", isConnected);
+    sensor_json.toString(bleCtr->sensorData, true);
+    Serial.println(bleCtr->sensorData);
+    uploadData();
+    if (willSprayOn)
+    {
+        moduleController->activateSprayModule();
+    }
+    else
+    {
+        moduleController->deactivateSprayModule();
+    }
+
+    if (willWaterModuleOn)
+    {
+        moduleController->activateWaterMotor();
+    }
+    else
+    {
+        moduleController->deactivateWaterMotor();
+    }
+}
+
+void FirebaseHandler::connect()
+{
+    sensorPath = "/sensors/";
+    sensorPath.concat(DEVICE_UID);
+    config.api_key = TOKEN;
+    config.database_url = HOST_URL;
+    Firebase.reconnectWiFi(true);
+    if (Firebase.signUp(&config, &auth, "", ""))
+    {
+        isAuthenticated = true;
+        Serial.println("Firebase authentication successful");
+        fuid = auth.token.uid.c_str();
+    }
+    else
+    {
+        Serial.println("Firebase authentication failed");
+    }
+    // Assign the callback function for the long running token generation task, see addons/TokenHelper.h
+    config.token_status_callback = tokenStatusCallback;
+    Firebase.begin(&config, &auth);
+    Serial.println("Firebase initialized!");
+    isConnected = true;
 }
 
 /**
@@ -49,34 +93,31 @@ bool FirebaseHandler::connect(AppStorage appStorage,String host,String token)
  * This method checks if the connection is ready, the user is authenticated, and the update interval has elapsed before sending the provided JSON data.
  *
  * @param node The path to the node in the Firebase database where the data should be uploaded.
- * @param jsonstring The JSON string to be uploaded.
  *
  * @return true if the data upload was successful, false otherwise.
  */
-bool FirebaseHandler::uploadData(const char *node, FirebaseJson json)
+void FirebaseHandler::uploadData()
 {
-
-    Serial.println("Sending data to Firebase:");
-    if (millis() - elapsedMillis > update_interval && isAuthenticated && Firebase.ready())
+    if (isConnected)
     {
-
-        elapsedMillis = millis();
-        if (Firebase.setJSON(fbdo, node, json))
+        Serial.println("Sending data to Firebase:");
+        if (millis() - elapsedMillis > update_interval && isAuthenticated && Firebase.ready())
         {
-            Serial.println("Firebase data upload successful");
-            return true;
+            elapsedMillis = millis();
+            if (Firebase.setJSON(fbdo, sensorPath, sensor_json))
+            {
+                Serial.println("Firebase data upload successful");
+            }
+            else
+            {
+                Serial.println("Firebase data upload failed: ");
+                Serial.print(fbdo.errorReason());
+                Serial.println("Error---Completd");
+            }
         }
         else
         {
-            Serial.println("Firebase data upload failed: ");
-            Serial.print(fbdo.errorReason());
-              Serial.println("Error---Completd");
-            return false;
+            Serial.println("Firebase is not ready or user is not authenticated");
         }
-    }
-    else
-    {
-        Serial.println("Firebase is not ready or user is not authenticated");
-        return false;
     }
 }

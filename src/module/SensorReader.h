@@ -1,7 +1,6 @@
 #ifndef SENSORREADER_H
 #define SENSORREADER_H
 
-#include <Arduino.h>
 #include <SoftwareSerial.h>
 #include <DHT.h>
 
