@@ -1,11 +1,15 @@
 #include "NetworkController.h"
 #include <WiFi.h>
 
-
-bool NetworkController::connect(AppStorage* appStorage)
+bool NetworkController::connect(AppStorage *appStorage)
 {
-  bool isSSID = strlen(appStorage->ssid) == 0;
-  bool isPassword = strlen(appStorage->password) == 0;
+
+  bool isSSID = strlen(appStorage->ssid) > 0;
+  bool isPassword = strlen(appStorage->password) > 0;
+  Serial.print("Is Password Exists : ");
+  Serial.println(isPassword);
+  Serial.print("Is SSSID Exists : ");
+  Serial.println(isSSID);
   if (isSSID && isPassword)
   {
     if (WiFi.status() == WL_CONNECTED)
@@ -28,6 +32,5 @@ bool NetworkController::connect(AppStorage* appStorage)
     Serial.println();
     return true;
   }
-   return false;
+  return false;
 }
-

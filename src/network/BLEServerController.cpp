@@ -92,6 +92,7 @@ void BLEServerController::connect()
     pAdvertising->setMinPreferred(0x06); // functions that help with iPhone connections issue
     pAdvertising->setMinPreferred(0x12);
     pAdvertising->start();
+    Serial.println("");
     Serial.println("Blutooth advertise started");
 }
 void BLEServerController::run()
@@ -215,10 +216,10 @@ void BLEServerController::printStorage()
 {
     Serial.println("Network Credentials:");
     Serial.print("SSID: ");
-    String ssid=String(appStorage.ssid);
     Serial.println(String(appStorage.ssid));
     Serial.print("Password: ");
     Serial.println(String(appStorage.password));
+     String ssid=String(appStorage.ssid);
     String message = "your ssid is ";
     message.concat(ssid);
     sendLog(message);
