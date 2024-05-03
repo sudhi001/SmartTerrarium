@@ -4,7 +4,9 @@
 
 bool NetworkController::connect(AppStorage* appStorage)
 {
-  if (!(strlen(appStorage->ssid) == 0) && (strlen(appStorage->password) == 0))
+  bool isSSID = strlen(appStorage->ssid) == 0;
+  bool isPassword = strlen(appStorage->password) == 0;
+  if (isSSID && isPassword)
   {
     if (WiFi.status() == WL_CONNECTED)
     {

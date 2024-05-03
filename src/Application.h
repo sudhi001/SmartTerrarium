@@ -30,7 +30,6 @@ public:
         bleServerController.connect();
         AppStorage *storage = bleServerController.getAppStorage();
         isConnected = networkController.connect(storage);
-
         sensorReader.begin();
         moduleController.begin();
         if (isConnected)
