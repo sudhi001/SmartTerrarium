@@ -173,6 +173,22 @@ void BLEServerController::processCMD(String jsonString)
         sendLog("ESP need to be restart.");
         printStorage();
         ESP.restart();
+    }else if (action == "SET_PROPERTY")
+    {
+        float sprayModuleActivateValue = jsonDocument["sprayModuleActivateValue"];
+        float waterModuleActivateValue = jsonDocument["waterModuleActivateValue"];
+        appStorage.sprayModuleActivateValue = sprayModuleActivateValue;
+        appStorage.waterModuleActivateValue = waterModuleActivateValue;
+
+        // Write to EEPROM
+        EEPROM.begin(sizeof(AppStorage)); // Initialize EEPROM with struct size
+        EEPROM.put(0, appStorage);        // Store the struct at address 0
+        EEPROM.commit();                  // Commit the data to EEPROM
+        EEPROM.end();                     // Release EEPROM resources
+        sendLog("ESP need to be restart.");
+        printStorage();
+        sendAction("CHANGED_PROPERTY","");
+        ESP.restart();
     }
  }
 }

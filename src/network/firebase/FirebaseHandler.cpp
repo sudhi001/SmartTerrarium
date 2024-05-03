@@ -35,6 +35,8 @@ void FirebaseHandler::createSensorObjet(BLEServerController *bleCtr, SensorReade
     sensor_json.add("soilPhosphorous", String(sensorReader->readPhosphorous()));
     sensor_json.add("soilPotassium", String(sensorReader->readPotassium()));
     sensor_json.add("atmosphericTemperature", atmosphericTemperature);
+    sensor_json.add("sprayModuleActivateValue", storage->sprayModuleActivateValue);
+    sensor_json.add("waterModuleActivateValue", storage->waterModuleActivateValue);
     sensor_json.add("atmosphericHumidity", sensorReader->readAtmosphericHumidity());
     sensor_json.add("sprayModuleStatus", moduleController->isSprayModuleOn);
     sensor_json.add("waterModuleStatus", moduleController->isWaterModuleOn);
