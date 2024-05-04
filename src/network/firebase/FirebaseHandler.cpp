@@ -42,7 +42,7 @@ void FirebaseHandler::createSensorObjet(BLEServerController *bleCtr, SensorReade
     sensor_json.add("waterModuleStatus", moduleController->isWaterModuleOn);
     sensor_json.add("willSprayOn", willSprayOn);
     sensor_json.add("willWaterModuleOn", willWaterModuleOn);
-     sensor_json.add("isWIFIConnectd", isConnected);
+     sensor_json.add("isWIFIConnected", isConnected);
     sensor_json.toString(bleCtr->sensorData, true);
     Serial.println(bleCtr->sensorData);
     uploadData();
