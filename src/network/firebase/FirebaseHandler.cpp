@@ -10,7 +10,7 @@
  */
 
 FirebaseHandler::FirebaseHandler()
-    : isAuthenticated(false), elapsedMillis(0), update_interval(10000)
+    : isAuthenticated(false), elapsedMillis(0)
 {
 }
 
@@ -103,7 +103,7 @@ void FirebaseHandler::uploadData()
     if (isConnected)
     {
         Serial.println("Sending data to Firebase:");
-        if (millis() - elapsedMillis > update_interval && isAuthenticated && Firebase.ready())
+        if (millis() - elapsedMillis > UPDATE_INTRAVEL && isAuthenticated && Firebase.ready())
         {
             elapsedMillis = millis();
             if (Firebase.setJSON(fbdo, sensorPath, sensor_json))

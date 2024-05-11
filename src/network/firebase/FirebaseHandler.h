@@ -71,10 +71,7 @@ private:
    */
   unsigned long elapsedMillis;
 
-  /**
-   * @brief Sets the desired time interval between data uploads (default 10 seconds).
-   */
-  unsigned long update_interval;
+
 };
 
 #endif

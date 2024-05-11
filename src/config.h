@@ -18,7 +18,7 @@
 // Device unique identifier and WiFi credentials
 #define DEVICE_UID "SMART_IOT_1X"         // Define the unique identifier for the device
 #define HOST_URL "https://smartagri-41ab6-default-rtdb.asia-southeast1.firebasedatabase.app"  
-#define TOKEN "A"         // Define the unique identifier for the device
+#define TOKEN ""         // Define the unique identifier for the device
 
 #define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 
@@ -28,7 +28,9 @@
 #define RECIVE "1450dbb0-e48c-4495-ae90-5ff53327ede4"
 #define RECIVE_STRING "9393c756-78ea-4629-a53e-52fb10f9a63f"
 
-#define DEEP_SLEEP_TIME  15
+#define DEEP_SLEEP_TIME  15 * 60 * 1000  // 15 minutes in millisecond
+
+#define UPDATE_INTRAVEL 5 * 60 * 1000 // 5 minutes in millisecond
 
 
 #endif

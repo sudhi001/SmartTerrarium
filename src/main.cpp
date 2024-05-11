@@ -6,7 +6,7 @@ Application app( WATER_MOTOR_PIN, SPRAY_PIN, RX_PIN, TX_PIN, DHTPIN, DHTTYPE);
 void gotToDeepSleep()
 {
   Serial.println("Going to sleep...");
-  esp_sleep_enable_timer_wakeup(DEEP_SLEEP_TIME * 60 * 1000000);
+  esp_sleep_enable_timer_wakeup(DEEP_SLEEP_TIME);
   esp_deep_sleep_start();
 
 }
