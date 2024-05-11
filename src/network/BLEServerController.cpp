@@ -146,6 +146,8 @@ void BLEServerController::processCMD(String jsonString)
     }
 
     String action = jsonDocument["action"];
+     Serial.print("Event Occured");
+     Serial.println(action);
     if (action == "RESET")
     {
         clearStorage();
@@ -190,6 +192,8 @@ void BLEServerController::processCMD(String jsonString)
         sendAction("CHANGED_PROPERTY","");
         ESP.restart();
     }
+ }else{
+        Serial.println("String is empty");
  }
 }
 
@@ -235,6 +239,10 @@ void BLEServerController::printStorage()
     Serial.println(String(appStorage.ssid));
     Serial.print("Password: ");
     Serial.println(String(appStorage.password));
+     Serial.print("Water Activation: ");
+    Serial.println(String(appStorage.waterModuleActivateValue));
+     Serial.print("Spray Activation: ");
+    Serial.println(String(appStorage.sprayModuleActivateValue));
      String ssid=String(appStorage.ssid);
     String message = "your ssid is ";
     message.concat(ssid);
