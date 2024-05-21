@@ -18,8 +18,8 @@ bool NetworkController::connect(AppStorage *appStorage)
       WiFi.disconnect(true); // Disconnect and clean up
       delay(1000);           // Wait for disconnection
     }
-
-    WiFi.begin(appStorage->ssid, appStorage->password);
+    String ssid="ACHU-APPU-2G_EXT";
+    WiFi.begin(ssid, appStorage->password);
     Serial.print("Connecting to Wi-Fi");
     while (WiFi.status() != WL_CONNECTED)
     {

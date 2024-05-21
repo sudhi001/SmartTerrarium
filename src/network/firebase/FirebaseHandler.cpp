@@ -10,7 +10,7 @@
  */
 
 FirebaseHandler::FirebaseHandler()
-    : isAuthenticated(false), elapsedMillis(0)
+    : isAuthenticated(false)
 {
 }
 
@@ -22,6 +22,7 @@ void FirebaseHandler::createSensorObjet(BLEServerController *bleCtr, SensorReade
     float atmosphericTemperature = sensorReader->readAtmosphericTemperature();
     bool willSprayOn = atmosphericTemperature > storage->sprayModuleActivateValue;
     bool willWaterModuleOn = soilMoisture < storage->waterModuleActivateValue;
+    isSensorDataAvailable = false;
     sensor_json.clear();
     sensor_json.add("action", "DATA");
     sensor_json.add("deviceUniqueId", DEVICE_UID);
@@ -42,10 +43,10 @@ void FirebaseHandler::createSensorObjet(BLEServerController *bleCtr, SensorReade
     sensor_json.add("waterModuleStatus", moduleController->isWaterModuleOn);
     sensor_json.add("willSprayOn", willSprayOn);
     sensor_json.add("willWaterModuleOn", willWaterModuleOn);
-     sensor_json.add("isWIFIConnected", isConnected);
+    sensor_json.add("isWIFIConnected", isConnected);
     sensor_json.toString(bleCtr->sensorData, true);
     Serial.println(bleCtr->sensorData);
-    uploadData();
+     isSensorDataAvailable = true;
     if (willSprayOn)
     {
         moduleController->activateSprayModule();
@@ -100,12 +101,13 @@ void FirebaseHandler::connect()
  */
 void FirebaseHandler::uploadData()
 {
-    if (isConnected)
+     Serial.println("uploadData");
+    if (isConnected )
     {
         Serial.println("Sending data to Firebase:");
-        if (millis() - elapsedMillis > UPDATE_INTRAVEL && isAuthenticated && Firebase.ready())
+        if ( isAuthenticated && Firebase.ready() && isSensorDataAvailable)
         {
-            elapsedMillis = millis();
+            
             if (Firebase.setJSON(fbdo, sensorPath, sensor_json))
             {
                 Serial.println("Firebase data upload successful");

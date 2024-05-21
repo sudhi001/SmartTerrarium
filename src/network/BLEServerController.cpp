@@ -97,7 +97,7 @@ void BLEServerController::connect()
 }
 void BLEServerController::run()
 {
-    if (deviceConnected)
+    if (deviceConnected && !sensorData.isEmpty())
     {
         Serial.println("Send Data to BLE:START");
         sSendString->setValue(sensorData.c_str());

@@ -46,6 +46,7 @@ private:
   String sensorPath;
   bool isConnected;
   FirebaseJson sensor_json;
+   bool isSensorDataAvailable; 
   /**
    * @brief Firebase data object used for storing data to be uploaded.
    */
@@ -66,10 +67,7 @@ private:
    */
   bool isAuthenticated;
 
-  /**
-   * @brief Tracks time elapsed since the last data upload.
-   */
-  unsigned long elapsedMillis;
+
 
 
 };

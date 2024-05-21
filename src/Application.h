@@ -38,10 +38,16 @@ public:
         }
     }
 
-    void run()
+    void taskOne()
     {
 
         firebaseHandler.createSensorObjet(&bleServerController, &sensorReader, &moduleController);
         bleServerController.run();
+    }
+   void taskTwo()
+    {
+
+    firebaseHandler.uploadData();
+        
     }
 };
