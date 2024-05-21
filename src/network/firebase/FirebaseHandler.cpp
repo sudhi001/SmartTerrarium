@@ -1,6 +1,6 @@
 #include "FirebaseHandler.h"
 #include "addons/TokenHelper.h"
-
+#include "utils/Logger.h"
 #include "config.h"
 
 /**
@@ -44,7 +44,7 @@ void FirebaseHandler::createSensorObjet(BLEServerController *bleCtr, SensorReade
     sensor_json.add("willWaterModuleOn", willWaterModuleOn);
      sensor_json.add("isWIFIConnected", isConnected);
     sensor_json.toString(bleCtr->sensorData, true);
-    Serial.println(bleCtr->sensorData);
+    Logger::log(bleCtr->sensorData);
     uploadData();
     if (willSprayOn)
     {
@@ -75,17 +75,17 @@ void FirebaseHandler::connect()
     if (Firebase.signUp(&config, &auth, "", ""))
     {
         isAuthenticated = true;
-        Serial.println("Firebase authentication successful");
+        Logger::log("Firebase authentication successful");
         fuid = auth.token.uid.c_str();
     }
     else
     {
-        Serial.println("Firebase authentication failed");
+        Logger::log("Firebase authentication failed");
     }
     // Assign the callback function for the long running token generation task, see addons/TokenHelper.h
     config.token_status_callback = tokenStatusCallback;
     Firebase.begin(&config, &auth);
-    Serial.println("Firebase initialized!");
+    Logger::log("Firebase initialized!");
     isConnected = true;
 }
 
@@ -102,24 +102,24 @@ void FirebaseHandler::uploadData()
 {
     if (isConnected)
     {
-        Serial.println("Sending data to Firebase:");
+        Logger::log("Sending data to Firebase:");
         if (millis() - elapsedMillis > UPDATE_INTRAVEL && isAuthenticated && Firebase.ready())
         {
             elapsedMillis = millis();
             if (Firebase.setJSON(fbdo, sensorPath, sensor_json))
             {
-                Serial.println("Firebase data upload successful");
+                Logger::log("Firebase data upload successful");
             }
             else
             {
-                Serial.println("Firebase data upload failed: ");
+                Logger::log("Firebase data upload failed: ");
                 Serial.print(fbdo.errorReason());
-                Serial.println("Error---Completd");
+                Logger::log("Error---Completd");
             }
         }
         else
         {
-            Serial.println("Firebase is not ready or user is not authenticated");
+            Logger::log("Firebase is not ready or user is not authenticated");
         }
     }
 }

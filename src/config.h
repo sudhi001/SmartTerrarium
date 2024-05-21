@@ -28,10 +28,10 @@
 #define RECIVE "1450dbb0-e48c-4495-ae90-5ff53327ede4"
 #define RECIVE_STRING "9393c756-78ea-4629-a53e-52fb10f9a63f"
 
-#define DEEP_SLEEP_TIME  15 * 60 * 1000  // 15 minutes in millisecond
+#define DEEP_SLEEP_TIME  20 * 60 * 1000  // 15 minutes in millisecond
 
-#define UPDATE_INTRAVEL 5 * 60 * 1000 // 5 minutes in millisecond
-
+#define UPDATE_INTRAVEL 1 * 60 * 1000 // 5 minutes in millisecond
+#define DEBUG_MODE true
 
 #endif
 

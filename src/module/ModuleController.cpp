@@ -1,4 +1,5 @@
 #include "ModuleController.h"
+#include "utils/Logger.h"
 
 
 ModuleController::ModuleController(int waterPin, int sprayPin)
@@ -17,32 +18,32 @@ void ModuleController::begin(){
 }
 void ModuleController::activateSprayModule() {
   digitalWrite(this->sprayPin, LOW);
-  Serial.println("Spray module activated");
+  Logger::log("Spray module activated");
   isSprayModuleOn = true;
   delay(2000);
   digitalWrite(this->sprayPin, HIGH);
    isSprayModuleOn = false;
-  Serial.println("Spray module deactivated after 2 seconds");
+  Logger::log("Spray module deactivated after 2 seconds");
 }
 
 void ModuleController::deactivateSprayModule() {
   digitalWrite(this->sprayPin, HIGH);
    isSprayModuleOn = false;
-  Serial.println("Spray module deactivated");
+  Logger::log("Spray module deactivated");
 }
 
 void ModuleController::activateWaterMotor() {
   digitalWrite(this->waterPin, LOW);
-  Serial.println("Water motor activated");
+  Logger::log("Water motor activated");
   isWaterModuleOn = true;
   delay(2000);
   digitalWrite(this->waterPin, HIGH);
    isWaterModuleOn = false;
-  Serial.println("Water motor deactivated after 2 seconds");
+  Logger::log("Water motor deactivated after 2 seconds");
 }
 
 void ModuleController::deactivateWaterMotor() {
   digitalWrite(this->waterPin, HIGH);
    isWaterModuleOn = false;
-  Serial.println("Water motor module deactivated");
+  Logger::log("Water motor module deactivated");
 }

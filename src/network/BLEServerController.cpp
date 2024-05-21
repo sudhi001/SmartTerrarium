@@ -7,6 +7,7 @@
 #include <BLE2902.h>
 #include <FirebaseESP32.h>
 #include <ArduinoJson.h>
+#include "utils/Logger.h"
 
 class ConnectionServerCallbacks : public BLEServerCallbacks
 {
@@ -19,19 +20,19 @@ public:
     void onConnect(BLEServer *pServer)
     {
         bleServerControllerPtr->deviceConnected = true;
-        Serial.println("Connected");
+        Logger::log("Connected");
         bleServerControllerPtr->sendLog("Device Connected");
         pServer->startAdvertising();
         bleServerControllerPtr->sendAction("BONJOUR","");
-        Serial.println("Blutooth advertise started");
+        Logger::log("Blutooth advertise started");
     };
 
     void onDisconnect(BLEServer *pServer)
     {
         bleServerControllerPtr->deviceConnected = false;
-        Serial.println("Disconnected");
+        Logger::log("Disconnected");
         pServer->startAdvertising();
-        Serial.println("Blutooth advertise started");
+        Logger::log("Blutooth advertise started");
     }
 };
 
@@ -45,11 +46,11 @@ public:
 
     void onWrite(BLECharacteristic *pCharacteristic)
     {
-        Serial.println("Received String:START");
+        Logger::log("Received String:START");
         const char *charData = pCharacteristic->getValue().c_str();
-        Serial.println(String(charData));
+        Logger::log(String(charData));
         bleServerControllerPtr->processCMD(charData);
-        Serial.println("Received String:END");
+        Logger::log("Received String:END");
         bleServerControllerPtr->sendLog("Device Received a request");
     }
 };
@@ -92,17 +93,17 @@ void BLEServerController::connect()
     pAdvertising->setMinPreferred(0x06); // functions that help with iPhone connections issue
     pAdvertising->setMinPreferred(0x12);
     pAdvertising->start();
-    Serial.println("");
-    Serial.println("Blutooth advertise started");
+    Logger::log("");
+    Logger::log("Blutooth advertise started");
 }
 void BLEServerController::run()
 {
     if (deviceConnected)
     {
-        Serial.println("Send Data to BLE:START");
+        Logger::log("Send Data to BLE:START");
         sSendString->setValue(sensorData.c_str());
         sSendString->notify();
-        Serial.println("Send Data to BLE:END");
+        Logger::log("Send Data to BLE:END");
     }
 }
 void BLEServerController::sendAction(String action,String msg)
@@ -120,7 +121,7 @@ void BLEServerController::sendAction(String action,String msg)
 }
 void BLEServerController::sendLog(String log)
 {
-       Serial.print(log);
+       Logger::log(log);
     if (deviceConnected)
     {
         String json = "{\"action\":\"LOG\",\"log\":\"";
@@ -139,15 +140,15 @@ void BLEServerController::processCMD(String jsonString)
     DeserializationError error = deserializeJson(jsonDocument, jsonString);
     if (error)
     {
-         Serial.println(jsonString);
+         Logger::log(jsonString);
         sendLog("deserializeJson() failed: ");
         sendLog(error.f_str());
         return;
     }
 
     String action = jsonDocument["action"];
-     Serial.print("Event Occured");
-     Serial.println(action);
+     Logger::log("Event Occured");
+     Logger::log(action);
     if (action == "RESET")
     {
         clearStorage();
@@ -193,7 +194,7 @@ void BLEServerController::processCMD(String jsonString)
         ESP.restart();
     }
  }else{
-        Serial.println("String is empty");
+        Logger::log("String is empty");
  }
 }
 
@@ -234,15 +235,15 @@ void BLEServerController::clearEEPROM()
 }
 void BLEServerController::printStorage()
 {
-    Serial.println("Network Credentials:");
-    Serial.print("SSID: ");
-    Serial.println(String(appStorage.ssid));
-    Serial.print("Password: ");
-    Serial.println(String(appStorage.password));
-     Serial.print("Water Activation: ");
-    Serial.println(String(appStorage.waterModuleActivateValue));
-     Serial.print("Spray Activation: ");
-    Serial.println(String(appStorage.sprayModuleActivateValue));
+    Logger::log("Network Credentials:");
+    Logger::log("SSID: ");
+    Logger::log(String(appStorage.ssid));
+    Logger::log("Password: ");
+    Logger::log(String(appStorage.password));
+     Logger::log("Water Activation: ");
+    Logger::log(String(appStorage.waterModuleActivateValue));
+     Logger::log("Spray Activation: ");
+    Logger::log(String(appStorage.sprayModuleActivateValue));
      String ssid=String(appStorage.ssid);
     String message = "your ssid is ";
     message.concat(ssid);
