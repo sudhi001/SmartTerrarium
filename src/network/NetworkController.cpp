@@ -1,5 +1,5 @@
 #include <WiFi.h>
-#include "NetworkController.h"
+#include "public/NetworkController.h"
 
 
 bool NetworkController::connect(AppStorage *appStorage) {

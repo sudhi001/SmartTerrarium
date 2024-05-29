@@ -1,12 +1,16 @@
-#include "network/firebase/FirebaseHandler.h"
-#include "module/ModuleController.h"
-#include "module/SensorReader.h"
-#include "network/NetworkController.h"
-#include "network/BLEServerController.h"
+#ifndef APPLICATION_H
+#define APPLICATION_H
 
-class Application
-{
+#include "public/FirebaseHandler.h"
+#include "public/ModuleController.h"
+#include "public/SensorReader.h"
+#include "public/NetworkController.h"
+#include "public/BLEServerController.h"
 
+/**
+ * @brief The Application class that initializes and coordinates various modules.
+ */
+class Application {
 private:
     FirebaseHandler firebaseHandler;
     NetworkController networkController;
@@ -16,32 +20,28 @@ private:
     bool isConnected = false;
 
 public:
-    // Constructor to initialize members with appropriate parameters
-    Application(
-        int waterMotorPin, int sprayPin,
-        int rxPin, int txPin, int dhtPin, uint8_t dhtType)
-        : moduleController(waterMotorPin, sprayPin),
-          sensorReader(rxPin, txPin, dhtPin, dhtType)
-    {
-    }
+    /**
+     * @brief Constructor to initialize members with appropriate parameters.
+     * 
+     * @param waterMotorPin Pin for water motor.
+     * @param sprayPin Pin for spray.
+     * @param rxPin RX pin for sensor.
+     * @param txPin TX pin for sensor.
+     * @param dhtPin Pin for DHT sensor.
+     * @param dhtType Type of DHT sensor.
+     */
+    Application(int waterMotorPin, int sprayPin, int rxPin, int txPin, int dhtPin, uint8_t dhtType);
 
-    void begin()
-    {
-        bleServerController.connect();
-        AppStorage *storage = bleServerController.getAppStorage();
-        isConnected = networkController.connect(storage);
-        sensorReader.begin();
-        moduleController.begin();
-        if (isConnected)
-        {
-            firebaseHandler.connect();
-        }
-    }
+    /**
+     * @brief Initializes the application, connecting to BLE and network, and starting sensors and modules.
+     */
+    void begin();
 
-    void run()
-    {
-
-        firebaseHandler.createSensorObjet(&bleServerController, &sensorReader, &moduleController);
-        bleServerController.run();
-    }
+    /**
+     * @brief Runs the main application loop, updating sensors and modules, and handling BLE communication.
+     */
+    void run();
 };
+
+#endif // APPLICATION_H
+

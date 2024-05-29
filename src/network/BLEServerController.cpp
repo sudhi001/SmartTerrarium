@@ -1,13 +1,12 @@
-#include "BLEServerController.h"
+#include "public/BLEServerController.h"
+#include "public/FirebaseHandler.h"
 #include "config.h"
 #include <string.h>
 #include <EEPROM.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
 #include <BLE2902.h>
-#include <FirebaseESP32.h>
-#include <ArduinoJson.h>
-#include "utils/Logger.h"
+#include "public/Logger.h"
 
 class ConnectionServerCallbacks : public BLEServerCallbacks
 {

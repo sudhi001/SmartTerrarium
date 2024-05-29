@@ -1,5 +1,5 @@
-#include "ModuleController.h"
-#include "utils/Logger.h"
+#include "public/ModuleController.h"
+#include "public/Logger.h"
 
 
 ModuleController::ModuleController(int waterPin, int sprayPin)

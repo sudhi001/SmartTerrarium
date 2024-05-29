@@ -1,6 +1,6 @@
-#include "FirebaseHandler.h"
+#include "public/FirebaseHandler.h"
 #include "addons/TokenHelper.h"
-#include "utils/Logger.h"
+#include "public/Logger.h"
 #include "config.h"
 
 /**

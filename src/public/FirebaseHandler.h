@@ -1,10 +1,10 @@
 #ifndef FIREBASEHANDLER_H
 #define FIREBASEHANDLER_H
-
+#include <ArduinoJson.h>
 #include <FirebaseESP32.h> // Include Firebase library
-#include "network/BLEServerController.h"
-#include "module/SensorReader.h"
-#include "module/ModuleController.h"
+#include "public/BLEServerController.h"
+#include "public/SensorReader.h"
+#include "public/ModuleController.h"
 
 /**
  * @brief A class for handling interaction with a Firebase Realtime Database from an Arduino board.

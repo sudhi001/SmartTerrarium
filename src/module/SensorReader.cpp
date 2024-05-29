@@ -1,4 +1,4 @@
-#include "SensorReader.h"
+#include "public/SensorReader.h"
 
 SensorReader::SensorReader(int rxPin, int txPin,int dhtPin, uint8_t dhtType):softwareSerial(rxPin, txPin), dht(dhtPin, dhtType)
 {
