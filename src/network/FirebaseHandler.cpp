@@ -10,7 +10,7 @@
  */
 
 FirebaseHandler::FirebaseHandler()
-    : isAuthenticated(false), elapsedMillis(0)
+    : elapsedMillis(0), isConnected(false)
 {
 }
 
@@ -42,7 +42,7 @@ void FirebaseHandler::createSensorObjet(BLEServerController *bleCtr, SensorReade
     sensor_json.add("waterModuleStatus", moduleController->isWaterModuleOn);
     sensor_json.add("willSprayOn", willSprayOn);
     sensor_json.add("willWaterModuleOn", willWaterModuleOn);
-     sensor_json.add("isWIFIConnected", isConnected);
+    sensor_json.add("isWIFIConnected", isConnected);
     sensor_json.toString(bleCtr->sensorData, true);
     Logger::log(bleCtr->sensorData);
     uploadData();
@@ -71,20 +71,18 @@ void FirebaseHandler::connect()
     sensorPath.concat(DEVICE_UID);
     config.api_key = TOKEN;
     config.database_url = HOST_URL;
+    auth.user.email = FB_USER_EMAIL;
+    auth.user.password = FB_USER_PASSWORD;
+    config.max_token_generation_retry = 5;
     Firebase.reconnectWiFi(true);
-    if (Firebase.signUp(&config, &auth, "", ""))
-    {
-        isAuthenticated = true;
-        Logger::log("Firebase authentication successful");
-        fuid = auth.token.uid.c_str();
-    }
-    else
-    {
-        Logger::log("Firebase authentication failed");
-    }
-    // Assign the callback function for the long running token generation task, see addons/TokenHelper.h
     config.token_status_callback = tokenStatusCallback;
     Firebase.begin(&config, &auth);
+    Logger::log("Getting User UID");
+    while ((auth.token.uid) == "")
+    {
+        Serial.print('.');
+        delay(1000);
+    }
     Logger::log("Firebase initialized!");
     isConnected = true;
 }
@@ -102,24 +100,42 @@ void FirebaseHandler::uploadData()
 {
     if (isConnected)
     {
-        Logger::log("Sending data to Firebase:");
-        if (millis() - elapsedMillis > UPDATE_INTRAVEL && isAuthenticated && Firebase.ready())
+        if (Firebase.isTokenExpired())
         {
-            elapsedMillis = millis();
-            if (Firebase.setJSON(fbdo, sensorPath, sensor_json))
+            Firebase.refreshToken(&config);
+            Serial.println("Refresh token");
+        }
+        Logger::log("Sending data to Firebase:");
+        if ((millis() - elapsedMillis > UPDATE_INTRAVEL) || (elapsedMillis == 0))
+        {
+            if (Firebase.ready())
             {
-                Logger::log("Firebase data upload successful");
+                elapsedMillis = millis();
+                if (Firebase.setJSON(fbdo, sensorPath, sensor_json))
+                {
+                    Logger::log("Firebase data upload successful");
+                }
+                else
+                {
+                    Logger::log("Firebase data upload failed: ");
+                    Serial.print(fbdo.errorReason());
+                    Logger::log("Error---Completd");
+                }
             }
             else
             {
-                Logger::log("Firebase data upload failed: ");
-                Serial.print(fbdo.errorReason());
-                Logger::log("Error---Completd");
+                Logger::log("Firebase is not ready or user is not authenticated");
             }
         }
         else
         {
-            Logger::log("Firebase is not ready or user is not authenticated");
+            unsigned long timeRemaining = UPDATE_INTRAVEL - (millis() - elapsedMillis);
+            Logger::log("Network delay is below desired time");
+            // Convert remaining time to seconds
+            unsigned long timeRemainingSeconds = timeRemaining / 1000;
+            char remainingTimeMsg[50];
+            sprintf(remainingTimeMsg, "Time remaining until next send (s): %lu", timeRemainingSeconds);
+            Logger::log(remainingTimeMsg);
         }
     }
 }

@@ -61,10 +61,7 @@ private:
    */
   FirebaseConfig config;
 
-  /**
-   * @brief Boolean flag indicating authentication status.
-   */
-  bool isAuthenticated;
+
 
   /**
    * @brief Tracks time elapsed since the last data upload.

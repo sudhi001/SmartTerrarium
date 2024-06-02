@@ -19,6 +19,8 @@
 #define DEVICE_UID "SMART_IOT_1X"         // Define the unique identifier for the device
 #define HOST_URL "https://smartagri-41ab6-default-rtdb.asia-southeast1.firebasedatabase.app"  
 #define TOKEN ""         // Define the unique identifier for the device
+#define FB_USER_EMAIL  ""
+#define FB_USER_PASSWORD ""
 
 #define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 
@@ -32,6 +34,7 @@
 
 #define UPDATE_INTRAVEL 1 * 60 * 1000 // 5 minutes in millisecond
 #define DEBUG_MODE true
+
 
 #define uS_TO_S_FACTOR 1000000ULL  /* Conversion factor for micro seconds to seconds */
 #define TIME_TO_SLEEP  15 * 60     /* Time ESP32 will go to sleep (in seconds) */

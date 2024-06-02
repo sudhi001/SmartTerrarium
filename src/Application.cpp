@@ -13,15 +13,16 @@ void Application::begin() {
 
     // Connect to the network
     isConnected = networkController.connect(storage);
+      // Connect to Firebase if network connection is successful
+    if (isConnected) {
+        firebaseHandler.connect();
+    }
 
     // Initialize sensor reader and module controller
     sensorReader.begin();
     moduleController.begin();
 
-    // Connect to Firebase if network connection is successful
-    if (isConnected) {
-        firebaseHandler.connect();
-    }
+  
 }
 
 void Application::run() {
